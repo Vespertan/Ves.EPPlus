@@ -2196,7 +2196,7 @@ namespace OfficeOpenXml
         {
             if (delete)
             {
-                _mergedCells._cells.Delete(row, 0, rows, 0);
+                _mergedCells._cells.Delete(row, 0, rows, ExcelPackage.MaxColumns);
             }
             else
             {
@@ -2238,6 +2238,12 @@ namespace OfficeOpenXml
             {
                 _mergedCells.List.RemoveAt(removeIndex[i]);
             }
+            var mergeTemp = new MergeCellsCollection();
+            foreach (var item in _mergedCells.List)
+            {
+                mergeTemp.Add(new ExcelAddress(item), false);
+            }
+            _mergedCells = mergeTemp;
         }
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
