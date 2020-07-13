@@ -119,7 +119,10 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactoryTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserManagerTests.cs" />
     <Compile Include="FormulaParsing\FormulaR1C1Test.cs" />
+    <Compile Include="KopiowanieUsuwanieWierszaTests.cs" />
     <Compile Include="SparkLineTests.cs" />
+    <Compile Include="UsuwanieKolumnZObrazkiemTests.cs" />
+    <Compile Include="UsuwanieWierszuZObrazkiemTests.cs" />
     <Compile Include="Utils\ConvertUtilTest.cs" />
     <Compile Include="DataValidation\CustomValidationTests.cs" />
     <Compile Include="DataValidation\DataValidationTests.cs" />
@@ -272,6 +275,9 @@
     <EmbeddedResource Include="Resources\BitmapImage.gif" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ObrazekTestowy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Test1.jpg" />
   </ItemGroup>
   <ItemGroup>
