@@ -56,7 +56,6 @@ using System.Linq;
 using OfficeOpenXml.Compatibility;
 using OfficeOpenXml.Sparkline;
 
-using System.Security.RightsManagement;
 
 namespace OfficeOpenXml
 {
