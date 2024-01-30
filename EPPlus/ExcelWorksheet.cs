@@ -1887,6 +1887,7 @@ namespace OfficeOpenXml
 
             lock (this)
             {
+                DrawingsInsertRow(rowFrom, rows);
                 _values.Insert(rowFrom, 0, rows, 0);
                 _formulas.Insert(rowFrom, 0, rows, 0);
                 _commentsStore.Insert(rowFrom, 0, rows, 0);
@@ -1966,6 +1967,24 @@ namespace OfficeOpenXml
                 sheet.UpdateCrossSheetReferences(this.Name, rowFrom, rows, 0, 0);
             }
         }
+
+        private void DrawingsInsertRow(int rowFrom, int rows)
+        {
+            var drawingsToMoved = Drawings
+                .Where(p => p.EditAs != eEditAs.Absolute && p.From.Row > rowFrom)
+                .ToList();
+            foreach (ExcelPicture picture in drawingsToMoved)
+            {
+                var size = picture.GetSize();
+                picture.SetPosition(
+                    Row: picture.From.Row + rows,
+                    RowOffsetPixels: picture.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                    Column: picture.From.Column,
+                    ColumnOffsetPixels: picture.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL);
+                picture.SetSize(size.Width, size.Height);
+            }
+        }
+
         /// <summary>
         /// Inserts a new column into the spreadsheet.  Existing columns below the position are 
         /// shifted down.  All formula are updated to take account of the new column.
@@ -2533,7 +2552,7 @@ namespace OfficeOpenXml
             }
             lock (this)
             {
-                DrawingsRowsDelete(rowFrom, rows);
+                DrawingsDeleteRow(rowFrom, rows);
                 _values.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _formulas.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _flags.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
@@ -2574,7 +2593,7 @@ namespace OfficeOpenXml
             }
         }
 
-        private void DrawingsRowsDelete(int rowFrom, int rows)
+        private void DrawingsDeleteRow(int rowFrom, int rows)
         {
             var kolekcjeGrafikiList = new List<List<int?>>();
             var indeksGrafiki = 0;
@@ -2614,8 +2633,9 @@ namespace OfficeOpenXml
 
             indeksGrafiki = 0;
             var obrazkiDoUsunieciaList = new List<int>();
-            foreach (ExcelDrawing d in Drawings)
+            for (int i = 0; i < Drawings.Count; i++)
             {
+                var d = Drawings[i];
                 if (d.EditAs != eEditAs.Absolute)
                 {
                     var nrWiersza = kolekcjeGrafikiList[indeksGrafiki].FindIndex(p => p == indeksGrafiki);
@@ -2626,16 +2646,30 @@ namespace OfficeOpenXml
                         continue;
                     }
                     var nrWierszaDo = kolekcjeGrafikiList[indeksGrafiki].FindLastIndex(p => p == indeksGrafiki);
+                    var rozmiar = d.GetSize();
                     if (d.EditAs == eEditAs.OneCell)
                     {
                         if (nrWierszaDo - nrWiersza < d.To.Row - d.From.Row)
                         {
+                            //d.SetPosition(
+                            //    Row: nrWiersza + d.To.Row - d.From.Row,
+                            //    RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                            //    Column: d.From.Column,
+                            //    ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
+                            //    );
                             d.To.Row = nrWiersza + d.To.Row - d.From.Row;
                             d.From.Row = nrWiersza;
                             indeksGrafiki++;
                             continue;
                         }
                     }
+                    //d.SetPosition(
+                    //            Row: nrWiersza,
+                    //            RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                    //            Column: d.From.Column,
+                    //            ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
+                    //            );
+                    //d.SetSize(rozmiar.Width, rozmiar.Height);
                     d.From.Row = nrWiersza;
                     d.To.Row = nrWierszaDo;
                 }

@@ -57,6 +57,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using OfficeOpenXml.Drawing;
 
 namespace OfficeOpenXml
 {
@@ -1089,11 +1090,11 @@ namespace OfficeOpenXml
 
         private static string GetDateText(DateTime d, string format, ExcelNumberFormatXml.ExcelFormatTranslator nf)
         {
-            if(nf.SpecialDateFormat==ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongDate)
+            if (nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongDate)
             {
                 return d.ToLongDateString();
             }
-            else if(nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongTime)
+            else if (nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongTime)
             {
                 return d.ToLongTimeString();
             }
@@ -2480,6 +2481,7 @@ namespace OfficeOpenXml
         /// <param name="excelRangeCopyOptionFlags">Cell parts that will not be copied. If Formulas are specified, the formulas will NOT be copied.</param>
         public void Copy(ExcelRangeBase Destination, ExcelRangeCopyOptionFlags? excelRangeCopyOptionFlags)
         {
+            DrawingsCopy(Destination._fromRow - _fromRow);
             bool sameWorkbook = Destination._worksheet.Workbook == _worksheet.Workbook;
             ExcelStyles sourceStyles = _worksheet.Workbook.Styles,
                         styles = Destination._worksheet.Workbook.Styles;
@@ -2704,6 +2706,38 @@ namespace OfficeOpenXml
                 {
                     var destinationCol = Destination.Worksheet.Column(Destination.Start.Column + c);
                     destinationCol.OutlineLevel = Worksheet.Column(range._fromCol + c).OutlineLevel;
+                }
+            }
+        }
+
+        private void DrawingsCopy(int rowsCount)
+        {
+            for (int i = _worksheet.Drawings.Count - 1; i >= 0; i--)
+            {
+                var picture = (ExcelPicture)_worksheet.Drawings[i];
+                if (picture.EditAs != eEditAs.Absolute && _fromRow <= picture.From.Row && _toRow >= picture.To.Row)
+                {
+                    var index = Regex.Replace(picture.Name, @".+_(\d+)", "$1");
+                    string name;
+                    if (int.TryParse(index, out int liczba))
+                    {
+                        index = (++liczba).ToString();
+                        name = Regex.Replace(picture.Name, @"(.+)_\d+", $@"$1_{index}");
+                    }
+                    else
+                    {
+                        name = $"{picture.Name}_1";
+                    }
+                    var size = picture.GetSize();
+                    var newPicture = _worksheet.Drawings.AddPicture(name, picture.Image);
+                    newPicture.SetPosition(
+                       Row: picture.From.Row + rowsCount,
+                       RowOffsetPixels: picture.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                       Column: picture.From.Column,
+                       ColumnOffsetPixels: picture.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL);
+                    newPicture.SetSize(size.Width, size.Height);
+                    newPicture.Description = picture.Description;
+                    newPicture.EditAs = picture.EditAs;
                 }
             }
         }
