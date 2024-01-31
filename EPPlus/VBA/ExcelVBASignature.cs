@@ -37,7 +37,6 @@ using OfficeOpenXml.Utils;
 using System.IO;
 using OfficeOpenXml.Utils.CompundDocument;
 using System.Security.Cryptography.Pkcs;
-
 namespace OfficeOpenXml.VBA
 {
     /// <summary>
