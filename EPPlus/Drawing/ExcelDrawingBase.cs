@@ -787,6 +787,18 @@ namespace OfficeOpenXml.Drawing
             _doNotAdjust = false;
         }
 
+        public void SetSizeCm(int cmWidth, int cmHeight)
+        {
+            SetSizeCm(cmWidth, cmHeight, STANDARD_DPI, STANDARD_DPI);
+        }
+
+        public void SetSizeCm(int cmWidth, int cmHeight, float horizontalResolution, float verticalResolution)
+        {
+            var pixelWidth = cmWidth * horizontalResolution / 2.54d;
+            var pixelHeight = cmHeight * verticalResolution / 2.54d;
+            SetSize((int)pixelWidth, (int)pixelHeight);
+        }
+
         public Size GetSize()
         {
             return new Size(_width, _height);
