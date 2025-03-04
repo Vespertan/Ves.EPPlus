@@ -2651,25 +2651,29 @@ namespace OfficeOpenXml
                     {
                         if (nrWierszaDo - nrWiersza < d.To.Row - d.From.Row)
                         {
-                            //d.SetPosition(
-                            //    Row: nrWiersza + d.To.Row - d.From.Row,
-                            //    RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
-                            //    Column: d.From.Column,
-                            //    ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
-                            //    );
+                            //Rozwiązanie problemu z 'rosnącymi' obrazkami. Wczesniej było zakomentowane.
+                            d.SetPosition(
+                                Row: nrWiersza + d.To.Row - d.From.Row,
+                                RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                                Column: d.From.Column,
+                                ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
+                                );
+                            //***
                             d.To.Row = nrWiersza + d.To.Row - d.From.Row;
                             d.From.Row = nrWiersza;
                             indeksGrafiki++;
                             continue;
                         }
                     }
-                    //d.SetPosition(
-                    //            Row: nrWiersza,
-                    //            RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
-                    //            Column: d.From.Column,
-                    //            ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
-                    //            );
-                    //d.SetSize(rozmiar.Width, rozmiar.Height);
+                    //Rozwiązanie problemu z 'rosnącymi' obrazkami. Wczesniej było zakomentowane.
+                    d.SetPosition(
+                        Row: nrWiersza,
+                        RowOffsetPixels: d.From.RowOff / ExcelDrawing.EMU_PER_PIXEL,
+                        Column: d.From.Column,
+                        ColumnOffsetPixels: d.From.ColumnOff / ExcelDrawing.EMU_PER_PIXEL
+                        );
+                    d.SetSize(rozmiar.Width, rozmiar.Height);
+                    //***
                     d.From.Row = nrWiersza;
                     d.To.Row = nrWierszaDo;
                 }
